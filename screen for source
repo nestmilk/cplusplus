@@ -1,1 +1,52 @@
-
+#include <vector>
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <list>
+#include <forward_list>
+#include <array>
+using namespace std;
+int main(){
+	vector<vector<string>> vector_lines(ifstream &);
+	//cout << "please,input the path of input the screen list!" << endl;
+	//string data_input;
+	//cin >> data_input;
+	ifstream data_screen("c:/screen.txt");//ifstream data_screen(data_input);
+	//cout << "please,input the path of input the source list!" << endl;
+	//cin >> data_input;
+	ifstream data_source("c:/source.txt");//ifstream data_screen(data_input);
+	vector<vector<string>> screen = vector_lines(data_screen);
+	vector<vector<string>> source = vector_lines(data_source);
+	ofstream result("c:/result.txt");
+	for (auto c : screen){
+		for (auto d : source){
+			if (c[0] == d[0]){
+				for (auto e : d){
+					result << e << "\t";
+				}
+				result << endl;
+			}
+		}	
+	}
+	return 0;
+}
+vector<vector<string>> vector_lines(ifstream & input){
+	string line;
+	vector<vector<string>> output;
+	while (getline(input, line)){
+		vector<string> line_temp;
+		string temp;
+		for (auto c : line){
+			if (c != '\t'){
+				temp += c;
+			}else{
+				line_temp.push_back(temp);
+				temp="";
+			}
+		}
+		line_temp.push_back(temp);
+		output.push_back(line_temp);
+	}
+	return output;
+}
