@@ -1,0 +1,184 @@
+#ifndef DATE_H
+#define DATE_H
+
+#include <iostream>
+#include <string>
+#include <vector>
+
+using namespace std;
+
+const string month_name[] = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
+const string month_abbr[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec" };
+const int days[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
+int get_month(string& ds, size_t & p);
+int get_day(string& ds, unsigned & month, size_t& p);
+int get_year(string& ds, size_t & p);
+
+
+class date{
+public:
+	friend ostream& operator<<(ostream& out, const date& d);
+
+	date() = default;
+	date(string& ds);
+
+	unsigned y() const{ return year; }
+	unsigned m() const{ return month; }
+	unsigned d() const{ return day; }
+private:
+	unsigned year, month, day;
+};
+#endif
+
+date::date(string&ds){
+	size_t p;			//subscript of the input string
+	if ((p = ds.find_first_of("0123456789")) == string::npos){
+		throw invalid_argument("without numbers, invalid date!");
+	}
+
+	if (p > 0){
+		month = get_month(ds, p);
+
+		day = get_day(ds, month, p);
+
+		if (ds[p] != ' ' &&  ds[p] != ','){
+			throw invalid_argument("invalid interval between day and year!");
+		}
+
+		p++;
+
+		year = get_year(ds, p);
+	}
+	else{
+
+		size_t q = 0;
+
+		month = stoi(ds, &q, 10);
+
+		p = q;
+
+		if (month < 1 || month>12){
+			throw invalid_argument("invalid month");
+		}
+		if (ds[p] != '/'){
+			throw invalid_argument("invalid interval '/' between month and day");
+		}
+
+		p++;
+
+		day = get_day(ds, month, p);
+
+		if (ds[p] != '/'){
+			throw invalid_argument("invalid interval '/' between day and year");
+		}
+
+		p++;
+
+		year = get_year(ds, p);
+
+	}
+}
+
+int get_month(string& ds, size_t & p){
+	size_t i;   //the numbers of monthes
+	size_t j;   //the subscript of ds and member of month_name/month_abbr
+
+	for (i = 0; i < 12; i++){
+		for (j = 0; j < month_abbr[i].size(); j++){
+			if (ds[j] != month_abbr[i][j]){
+				break;             //not this month!
+			}
+		}
+		if (j == month_abbr[i].size()){
+			break;
+		}
+	}
+
+	if (i == 12){
+		throw invalid_argument("invalid month name!");
+	}
+
+	if (ds[j] == ' '){
+		p = j + 1;  //day_begin;
+
+		return i + 1;
+	}
+
+	for (; j != month_name[i].size(); ++j){
+		if (ds[j] != month_name[i][j]){
+			break;
+		}
+	}
+
+	if (j != month_name[i].size()){
+		throw invalid_argument("invalid month name!");
+	}
+
+	if (ds[j] != ' '){
+		throw invalid_argument("invalid interval between month_name and day");
+	}
+
+	p = j + 1; //day_begin
+
+	return i + 1;
+}
+
+int get_day(string& ds, unsigned & month, size_t& p){
+	size_t i = 0;
+
+	int day = stoi(ds.substr(p), &i, 10);
+
+	if (day < 1 || day > days[month - 1]){
+
+		throw invalid_argument("invalid day");
+	}
+
+	p += i;
+
+	return day;
+}
+
+int get_year(string & ds, size_t & p){
+	size_t i = 0;
+	int year = stoi(ds.substr(p), &i, 10);
+
+	p += i;
+	if (p < ds.size()){
+		throw invalid_argument("invalid end!");
+	}
+	return year;
+}
+
+ostream& operator<<(ostream& out, const date& d){
+	out << "year is: " << d.y() << "\tmonth is: " << d.m() << "\tday is: " << d.d() << endl;
+	return out;
+}
+
+
+
+int main(){
+	
+	vector<string> d = {"3/1/2015","Feb 15 2014","Sept 2,2014"};  
+	vector<date> nd;
+	try{
+		
+		for (auto c : d){
+		
+			date tem(c);
+
+			nd.push_back(tem);
+		}
+	
+		for (auto c : nd){
+			cout << c;
+		}
+
+	}
+	catch (invalid_argument e){
+		cerr << e.what() << endl;
+	}
+
+	return 0;
+
+}
