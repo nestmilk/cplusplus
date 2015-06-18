@@ -1,0 +1,89 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+struct node{
+	long item;
+	int count;
+	struct node* pleft;
+	struct node* pright;
+};
+
+struct node* createnode(long value);
+struct node* addnode(long value, struct node* pnode);
+void listnode(struct node* pnode);
+
+
+
+int main(void){
+	long item=0;
+	struct node* proot=NULL;
+	char answer=0;
+	do{
+		printf("\nplease enter the value!\n");
+		scanf(" %ld",&item);
+		if(proot==NULL){
+			proot=createnode(item);
+		}
+		else{
+			addnode(item,proot);
+		}
+		
+		printf("\ndo you wanna continue the input? YorN\n");
+		scanf(" %c",&answer);
+		answer=tolower(answer);
+	}while(answer=='y');
+	listnode(proot);
+	return 0;
+}
+
+struct node* createnode(long value){
+	struct node* temp=NULL;
+	temp=(struct node*)malloc(sizeof(struct node));
+	
+	temp->item=value;
+	temp->count=1;
+	temp->pleft=NULL;
+	temp->pright=NULL;
+	
+	return temp;
+}
+
+struct node* addnode(long value, struct node* pnode){
+	if(pnode==NULL){
+		pnode=createnode(value);
+	}
+	else{
+		if(value==(pnode->item)){
+			(pnode->count)++;
+			return pnode;
+		}
+		else if(value<(pnode->item)){
+			if(pnode->pleft==NULL){
+				pnode->pleft=createnode(value);
+				return pnode->pleft;
+			}else{
+				return addnode(value,pnode->pleft);
+			}
+		}
+		else{
+			if(pnode->pright==NULL){
+				pnode->pright=createnode(value);
+				return pnode->pright;
+			}else{
+				return addnode(value,pnode->pright);
+			}
+		}
+		
+	}
+}
+
+void listnode(struct node* pnode){
+	if(pnode->pleft!=NULL)
+		listnode(pnode->pleft);
+	int i=0;
+	for(;i<pnode->count;i++){
+		printf("\n%ld",pnode->item);
+	}
+	if(pnode->pright!=NULL)
+		listnode(pnode->pright);
+}
