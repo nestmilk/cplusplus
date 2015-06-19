@@ -1,0 +1,64 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#define page_height 20;
+#define page_width 40
+typedef struct bartag{
+	double value;
+	struct bartag* pnextbar;
+}bar;
+
+
+
+typedef unsigned int uint;
+int main(){
+	bar* pfirstbar=NULL;
+	bar* plastbar=NULL;
+	bar* pcurrentbar=NULL;
+	char* value[80]={0};
+	for(;;){
+	printf("Enter the value of the bar, or use 'quit' to end: ";
+	gets(value);
+	if(strcmp(value,"quit")==0){
+		break;
+	}
+	
+	if(!(plastbar=(*bar)malloc(sizeof(bar)))){
+		printf("can not allocate memory to plastbar!");
+		return -1;
+	}
+	
+	if(pfirstbar==NULL){
+		pfirstbar=plastbar;
+	}
+	
+	pcurrentbar->value=atof(value);
+	pcurrentbar->pnextbar=plastbar;
+	plastbar=NULL;
+	
+	
+	
+	}
+ 
+	pcurrentbar=pfirstbar;
+ 
+	do{
+		printf("%lf\n",pcurrentbar->value);
+		pcurrentbar=pcurrentbar->pnextbar;
+	}while(pcurrentbar->pnextbar!=NULL);
+ 
+ }
+ 
+}
+
+int bar_chart(bar* pfirstbar,uint page_width, uint page_height,char* title){
+	bar* plastbar=pfirstbar;
+	double max=0.0;
+	double min=0.0;
+	double vert_scale=0.0;
+	uint bar_count=0;
+	
+	
+	
+	return 0;
+}
