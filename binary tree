@@ -11,6 +11,7 @@ struct node{
 struct node* createnode(long value);
 struct node* addnode(long value, struct node* pnode);
 void listnode(struct node* pnode);
+void freenode(struct node* pnode);
 
 
 
@@ -33,6 +34,7 @@ int main(void){
 		answer=tolower(answer);
 	}while(answer=='y');
 	listnode(proot);
+	freenode(proot);
 	return 0;
 }
 
@@ -86,4 +88,14 @@ void listnode(struct node* pnode){
 	}
 	if(pnode->pright!=NULL)
 		listnode(pnode->pright);
+}
+
+void freenode(struct node* pnode){
+if(pnode->pleft!=NULL){
+	freenode(pnode->pleft);
+}
+if(pnode->pright!=NULL){
+	freenode(pnode->pright);
+}
+free(pnode);
 }
