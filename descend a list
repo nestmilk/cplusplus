@@ -1,0 +1,109 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+
+typedef struct idtag{
+	int age;
+	char name[80];
+	struct idtag* pnext;
+}id;
+
+void assend(id** plist);
+
+int main(){
+	char text=0;
+	id* pfirst=NULL;
+	id* plast=NULL;
+	id* pcurrent=NULL;
+	
+	
+do{
+	pcurrent=(id*)malloc(sizeof(id));
+	printf("please input your age!\n");
+	scanf(" %d",&pcurrent->age);
+	printf("please input your name!\n");
+	scanf(" %s",pcurrent->name);
+	pcurrent->pnext=NULL;
+	
+	if(pfirst==NULL){
+		pfirst=pcurrent;
+	}
+	else{
+		plast->pnext=pcurrent;
+	}
+	
+	printf("%d\t%s\n",pcurrent->age,pcurrent->name);//
+	
+	plast=pcurrent;
+	
+	printf("do you want input?y or n\n");
+	scanf(" %c",&text);
+}while(tolower(text)=='y');
+
+pcurrent=pfirst;
+
+assend(&pfirst);
+
+pcurrent=pfirst;
+while(pcurrent!=NULL){
+	printf("%d\t%s\n",pcurrent->age,pcurrent->name);
+	plast=pcurrent;
+	pcurrent=pcurrent->pnext;
+	free(plast);
+	plast=NULL;
+}
+}
+
+void assend(id** pplist){
+	
+	id* pbefore=NULL;
+	id* pcopy=NULL; //inside the loop, avoid changing the plist;
+	id* plast=NULL;
+	id* pafter=NULL;
+	
+	bool check=false;
+	
+	int temp=0;
+	
+	while(!check){
+		pcopy=*pplist;
+		check=true;
+		pbefore=NULL;// this is very important!
+		
+		while(pcopy->pnext!=NULL){
+			plast=pcopy->pnext;
+			
+			printf("\n begin %d %d\n",pcopy->age,plast->age);//for check!
+			
+			if(pcopy->age<plast->age){
+				if(plast!=NULL){
+					pafter=plast->pnext;
+				}
+				else{
+					pafter=NULL;
+				}
+					
+				if(pbefore==NULL){
+					*pplist=plast;
+				}else{
+					pbefore->pnext=plast;
+				}
+				
+				plast->pnext=pcopy;	
+				pcopy->pnext=pafter;
+			
+				pcopy=plast;
+				
+				check=false;
+				
+			}
+			
+			pbefore=pcopy;
+			pcopy=pcopy->pnext;
+			
+			printf("\n after %d %d\n",pbefore->age,pcopy->age);//for check
+			
+		}
+	}
+}
