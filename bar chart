@@ -1,64 +1,195 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
-#define page_height 20;
-#define page_width 40
+#include <stdbool.h>
+
+#define PAGE_HEIGHT 40
+#define PAGE_WIDTH 40
+
 typedef struct bartag{
 	double value;
 	struct bartag* pnextbar;
 }bar;
 
+typedef unsigned int uint;
 
+int barchart(bar firstbar,uint page_width,uint page_height,char* title);
 
 typedef unsigned int uint;
 int main(){
-	bar* pfirstbar=NULL;
+	char title[80]={0};
+	char value[80]={0};
+	bar firstbar;
 	bar* plastbar=NULL;
-	bar* pcurrentbar=NULL;
-	char* value[80]={0};
+	printf("enter the chart title: ");
+	gets(title);
+	
 	for(;;){
-	printf("Enter the value of the bar, or use 'quit' to end: ";
-	gets(value);
-	if(strcmp(value,"quit")==0){
-		break;
+		printf("Enter the value or use 'quit' to end: ");
+		gets(value);
+		if(strcmp(value,"quit")==0){
+			break;
+		}
+		
+		if(!plastbar){
+			plastbar=&firstbar;
+			plastbar->pnextbar=NULL;
+			
+		}
+		else{
+			if(!(plastbar->pnextbar=malloc(sizeof(bar)))){
+				printf("we can not allocate the memory for plastbar!\n");
+				return -1;
+			}
+			
+			plastbar=plastbar->pnextbar;
+			plastbar->pnextbar=NULL;
+		}
+		plastbar->value=atof(value);
 	}
 	
-	if(!(plastbar=(*bar)malloc(sizeof(bar)))){
-		printf("can not allocate memory to plastbar!");
-		return -1;
+
+	
+	plastbar=&firstbar;
+	
+	/*while(plastbar!=NULL){
+		printf(" %fl\n",plastbar->value);
+		plastbar=plastbar->pnextbar;
+	}*/
+	
+	int result=barchart(firstbar,PAGE_WIDTH,PAGE_HEIGHT,title);
+	
+	while(!firstbar.pnextbar){
+		plastbar=firstbar.pnextbar;
+		firstbar.pnextbar=plastbar->pnextbar;
+		free(plastbar);
+		plastbar=NULL;
 	}
 	
-	if(pfirstbar==NULL){
-		pfirstbar=plastbar;
-	}
 	
-	pcurrentbar->value=atof(value);
-	pcurrentbar->pnextbar=plastbar;
-	plastbar=NULL;
-	
-	
-	
-	}
- 
-	pcurrentbar=pfirstbar;
- 
-	do{
-		printf("%lf\n",pcurrentbar->value);
-		pcurrentbar=pcurrentbar->pnextbar;
-	}while(pcurrentbar->pnextbar!=NULL);
- 
- }
- 
 }
 
-int bar_chart(bar* pfirstbar,uint page_width, uint page_height,char* title){
-	bar* plastbar=pfirstbar;
+int barchart(bar firstbar,uint page_width,uint page_height,char* title){
 	double max=0.0;
 	double min=0.0;
 	double vert_scale=0.0;
-	uint bar_count=0;
+	
+	uint barcount=0;
+	uint barwidth=0;
+	uint space=2;
+	
+	char* column;
+	char* blank;
+	
+	uint i=0;
+	
+	bar* plastbar=&firstbar;
+	max=min=plastbar->value;
+	
+	while(plastbar!=NULL){
+		
+		if(max<plastbar->value){
+			max=plastbar->value;
+		}
+		if(min>plastbar->value){
+			min=plastbar->value;
+		}
+		plastbar=plastbar->pnextbar;
+		barcount++;
+	}
+	
+	printf("\nmax= %.2lf, min= %.2lf\n",max, min);//for check;
+	
+	vert_scale=(max*min>=0)? ((page_height-1)/max):((page_height-1)/(max-min));
+	
+	printf("\nvert_scale= %.2lf\n",vert_scale);//for check;
+	
+	if((barwidth=page_width/barcount-space)<1){
+		printf("the page width is too narrow!");
+		return -1;
+	}
+	
+	if((column=malloc(barwidth+space+1))==NULL){
+		printf("can not allocate the memory in the column");
+		return -1;
+	}
+	for(;i<space;i++){
+		*(column+i)=' ';
+	}
+	for(;i<space+barwidth;i++){
+		*(column+i)='*';
+	}
+	*(column+i)='\0';
+	
+	i=0;
+	if((blank=malloc(barwidth+space+1))==NULL){
+		printf("can not allocate the memory in the blank");
+		return -1;
+	}
+	for(;i<space+barwidth;i++){
+		*(blank+i)=' ';
+	}
+	*(blank+i)='\0';
+	
+	printf("\"%s\" \"%s\"\n",column,blank);//check!
 	
 	
+	printf("the title: %s\n",title);
+	
+	uint zero=0;
+	
+	printf(" %d %d\n",max,vert_scale);//check;
+	
+	if(max>0){
+		zero=page_height-(max*vert_scale);
+	}else{
+		zero=page_height;
+	}
+	
+	printf("\n %lf %d\n",vert_scale,zero);//for check;
+	
+	
+
+	
+	for(i=page_height-1;i>0;i--){
+		if(i==zero){
+			printf("+");
+			int bar=0;
+			for(;bar<barcount*(space+barwidth);bar++){
+				printf("-");
+			}
+			printf(">\n");
+			continue;
+		}
+		
+		printf("|");
+		plastbar=&firstbar;
+		while(plastbar!=NULL){
+			
+			if (
+			  (plastbar->value>0 && ((i-zero)/vert_scale)<=plastbar->value && i>zero)||
+			  (plastbar->value<0 && ((i-zero)/vert_scale)>=plastbar->value && i<zero)
+			  ){
+				  printf("%s",column);
+			  }else{
+				  printf("%s",blank);
+			  }
+			
+			plastbar=plastbar->pnextbar;
+		}
+		printf("\n");
+		
+	}
+	
+	free(blank);
+	free(column);
 	
 	return 0;
+	
 }
+
+
+ 
+
+
