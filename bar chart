@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdbool.h>
+#include <math.h>
 
 #define PAGE_HEIGHT 40
 #define PAGE_WIDTH 40
@@ -82,7 +83,7 @@ int barchart(bar firstbar,uint page_width,uint page_height,char* title){
 	char* column;
 	char* blank;
 	
-	uint i=0;
+	int i=0;
 	
 	bar* plastbar=&firstbar;
 	max=min=plastbar->value;
@@ -101,16 +102,16 @@ int barchart(bar firstbar,uint page_width,uint page_height,char* title){
 	
 	printf("\nmax= %.2lf, min= %.2lf\n",max, min);//for check;
 	
-	vert_scale=(max*min>=0)? ((page_height-1)/max):((page_height-1)/(max-min));
+	vert_scale=min>=0?(double)(page_height-1)/max:(max<=0?(double)(page_height-1)/(-min):(double)(page_height-1)/(max-min));//initialize the vert_scale;
 	
-	printf("\nvert_scale= %.2lf\n",vert_scale);//for check;
+	printf("\nvert_scale= %lf\n",vert_scale);//for check;
 	
-	if((barwidth=page_width/barcount-space)<1){
+	if((barwidth=page_width/barcount-space)<1){ //check the barwidth;
 		printf("the page width is too narrow!");
 		return -1;
 	}
 	
-	if((column=malloc(barwidth+space+1))==NULL){
+	if((column=malloc(barwidth+space+1))==NULL){  //initialize the column;
 		printf("can not allocate the memory in the column");
 		return -1;
 	}
@@ -122,7 +123,7 @@ int barchart(bar firstbar,uint page_width,uint page_height,char* title){
 	}
 	*(column+i)='\0';
 	
-	i=0;
+	i=0;                                         //initialize the blank;
 	if((blank=malloc(barwidth+space+1))==NULL){
 		printf("can not allocate the memory in the blank");
 		return -1;
@@ -134,27 +135,24 @@ int barchart(bar firstbar,uint page_width,uint page_height,char* title){
 	
 	printf("\"%s\" \"%s\"\n",column,blank);//check!
 	
+	int zero=0;
 	
-	printf("the title: %s\n",title);
-	
-	uint zero=0;
-	
-	printf(" %d %d\n",max,vert_scale);//check;
+	printf(" %lf %lf\n",max,vert_scale);//check;
 	
 	if(max>0){
-		zero=page_height-(max*vert_scale);
+		zero=page_height-1-(max*vert_scale);
 	}else{
-		zero=page_height;
+		zero=page_height-1;
 	}
 	
 	printf("\n %lf %d\n",vert_scale,zero);//for check;
 	
 	
 
-	
+	printf("the title: %s\n",title);
 	for(i=page_height-1;i>0;i--){
 		if(i==zero){
-			printf("+");
+			printf("%5.1lf +",0.0);
 			int bar=0;
 			for(;bar<barcount*(space+barwidth);bar++){
 				printf("-");
@@ -163,13 +161,13 @@ int barchart(bar firstbar,uint page_width,uint page_height,char* title){
 			continue;
 		}
 		
-		printf("|");
+		printf("%5.1lf |",(double)(i-zero)/vert_scale);
 		plastbar=&firstbar;
 		while(plastbar!=NULL){
 			
 			if (
-			  (plastbar->value>0 && ((i-zero)/vert_scale)<=plastbar->value && i>zero)||
-			  (plastbar->value<0 && ((i-zero)/vert_scale)>=plastbar->value && i<zero)
+			  (plastbar->value>0 && ((double)(i-zero)/vert_scale<=plastbar->value && i>zero))||
+			  (plastbar->value<0 && ((double)(i-zero)/vert_scale>=plastbar->value && i<zero))
 			  ){
 				  printf("%s",column);
 			  }else{
@@ -188,8 +186,3 @@ int barchart(bar firstbar,uint page_width,uint page_height,char* title){
 	return 0;
 	
 }
-
-
- 
-
-
